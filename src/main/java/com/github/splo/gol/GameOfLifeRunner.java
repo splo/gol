@@ -4,6 +4,9 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 
 import java.io.IOException;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,87 +18,103 @@ import java.util.stream.IntStream;
 public class GameOfLifeRunner {
 
     public static void main(String[] args) {
-        final Configuration configuration = new Configuration();
-        final JCommander jCommander = JCommander.newBuilder().programName("gol").addObject(configuration).build();
         try {
+            configureStdout();
+            final Configuration configuration = new Configuration();
+            final JCommander jCommander = JCommander.newBuilder().programName("gol").addObject(configuration).build();
             jCommander.parse(args);
+
+            if (configuration.isHelp()) {
+                jCommander.usage();
+
+            } else if (configuration.isVersion()) {
+                System.out.println((String.format("gol %s",
+                        Optional.ofNullable(GameOfLifeRunner.class.getPackage().getImplementationVersion())
+                                .orElse("unknown"))));
+
+            } else if (configuration.isClient()) {
+                // Client mode.
+                final SocketClient socketClient = new SocketClient();
+                socketClient.run(configuration.getHost(), configuration.getPort());
+
+            } else {
+                final Strategy strategy =
+                        toStrategy(configuration.getStrategy()).orElseThrow(() -> new IllegalArgumentException(String.format(
+                                "Wrong strategy name: \"%s\"; expected one of \"%s\", \"%s\"",
+                                configuration.getStrategy(),
+                                "B3S23",
+                                "B12345S12345")));
+
+                final Path gridFilePath = Paths.get(configuration.getGridFilename());
+                final Grid initialGrid;
+                if (configuration.isNewGrid() || !Files.exists(gridFilePath)) {
+                    initialGrid = buildRandomGrid(configuration.getWidth(),
+                            configuration.getHeight(),
+                            configuration.getAlivePercent());
+                } else {
+                    initialGrid = readGridFromFile(gridFilePath);
+                }
+
+                Consumer<Grid> listener;
+                if (configuration.isServer()) {
+                    // Server mode.
+                    final SocketServer socketServer = new SocketServer();
+                    new Thread(() -> socketServer.run(configuration.getPort())).start();
+                    listener = grid -> {
+                        socketServer.sendGrid(grid);
+                        writeGridToFile(grid, gridFilePath);
+                    };
+                } else {
+                    // Solo mode.
+                    listener = grid -> {
+                        System.out.println(grid);
+                        writeGridToFile(grid, gridFilePath);
+                    };
+                    System.out.println(initialGrid);
+                }
+
+                final GameOfLife gameOfLife = new GameOfLife(strategy, listener, initialGrid);
+
+                final float frequency = Math.min(configuration.getFrequency(), 1000f);
+
+                final ConstantFrequencyUpdater updater =
+                        new ConstantFrequencyUpdater(gameOfLife::computeNextGrid, frequency);
+                updater.start();
+                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                    updater.stop();
+                    updater.awaitStopped();
+                }));
+                updater.awaitStopped();
+            }
         } catch (final ParameterException e) {
             final StringBuilder out = new StringBuilder();
             e.getJCommander().getUsageFormatter().usage(out);
             System.err.println(e.getMessage());
             System.err.println(out.toString());
             System.exit(1);
-        }
-        if (configuration.isHelp()) {
-            jCommander.usage();
-            System.exit(0);
-        }
-        if (configuration.isVersion()) {
-            System.out.println((String.format("gol %s",
-                    Optional.ofNullable(GameOfLifeRunner.class.getPackage().getImplementationVersion())
-                            .orElse("unknown"))));
-            System.exit(0);
-        }
-
-        Strategy strategy = null;
-        if (configuration.getStrategy().equals("B3S23")) {
-            strategy = new B3S23Strategy();
-        } else if (configuration.getStrategy().equals("B12345S12345")) {
-            strategy = new B12345S12345Strategy();
-        } else {
-            System.err.printf("Wrong strategy name: \"%s\"; expected one of \"%s\", \"%s\"%n",
-                    configuration.getStrategy(),
-                    "B3S23",
-                    "B12345S12345");
+        } catch (final Exception e) {
+            System.err.println(e.getMessage());
             System.exit(1);
         }
+    }
 
-        final Path gridFilePath = Paths.get(configuration.getGridFilename());
-        final Grid initialGrid;
-        if (configuration.isNewGrid() || !Files.exists(gridFilePath)) {
-            initialGrid = buildRandomGrid(configuration.getWidth(),
-                    configuration.getHeight(),
-                    configuration.getAlivePercent());
-        } else {
-            initialGrid = readGridFromFile(gridFilePath);
+    private static void configureStdout() {
+        try {
+            System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8.name()));
+        } catch (final UnsupportedEncodingException e) {
+            throw new IllegalStateException("Error while configuring stdout in UTF-8", e);
         }
+    }
 
-        Consumer<Grid> listener = null;
-        if (configuration.isServer()) {
-            // Server mode.
-            final SocketServer socketServer = new SocketServer();
-            new Thread(() -> socketServer.run(configuration.getPort())).start();
-            listener = grid -> {
-                socketServer.sendGrid(grid);
-                writeGridToFile(grid, gridFilePath);
-            };
-        } else if (configuration.isClient()) {
-            // Client mode.
-            final SocketClient socketClient = new SocketClient();
-            socketClient.run(configuration.getHost(), configuration.getPort());
-            System.exit(0);
-        } else {
-            // Solo mode.
-            listener = grid -> {
-                System.out.println(grid);
-                writeGridToFile(grid, gridFilePath);
-            };
-            System.out.println(initialGrid);
+    private static Optional<Strategy> toStrategy(final String strategyName) {
+        switch (strategyName) {
+            case "B3S23":
+                return Optional.of(new B3S23Strategy());
+            case "B12345S12345":
+                return Optional.of(new B12345S12345Strategy());
+            default:
+                return Optional.empty();
         }
-
-        final GameOfLife gameOfLife = new GameOfLife(strategy, listener, initialGrid);
-
-        float frequency = configuration.getFrequency();
-        if (frequency > 1000f) {
-            frequency = 1000f;
-        }
-        final ConstantFrequencyUpdater updater = new ConstantFrequencyUpdater(gameOfLife::computeNextGrid, frequency);
-        updater.start();
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            updater.stop();
-            updater.awaitStopped();
-        }));
-        updater.awaitStopped();
     }
 
     private static void writeGridToFile(final Grid grid, final Path filePath) {
