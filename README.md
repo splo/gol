@@ -77,5 +77,21 @@ mvn package
 ### Running
 
 ```bash
+# On Linux/macOS
 ./target/appassembler/bin/gol
+# On Windows
+.\target\appassembler\bin\gol.bat
+```
+
+To stop the process, hit your Ctrl-C key, or send a SIGINT signal to the process.
+
+### Examples
+
+```bash
+# Run with a new grid of size 20x10, with 40% alive cells, updated every 250 ms, with the B12345/S1234,
+# saving the grid into the /tmp/grid.gol file, running as a server listening on port 9091:
+bin/gol --new --width 20 --alive 40 --frequency 4 --strategy B12345S12345 --grid-file /tmp/grid.gol --port 9091 --server
+
+# Run as a client, connecting to a server at address `127.0.0.1:9091`:
+bin/gol --port 9091 --client
 ```
