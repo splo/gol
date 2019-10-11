@@ -1,4 +1,4 @@
-package com.github.splo.gol;
+package com.github.splo.concurrent;
 
 import java.util.concurrent.CompletableFuture;
 

@@ -1,5 +1,6 @@
-package com.github.splo.gol;
+package com.github.splo.gol.api;
 
+import com.github.splo.gol.api.Coordinates;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

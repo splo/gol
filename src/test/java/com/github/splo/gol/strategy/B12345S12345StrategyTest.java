@@ -1,5 +1,7 @@
-package com.github.splo.gol;
+package com.github.splo.gol.strategy;
 
+import com.github.splo.gol.api.CellState;
+import com.github.splo.gol.strategy.B12345S12345Strategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package com.github.splo.gol;
+package com.github.splo.gol.jcommander;
 
 import com.beust.jcommander.Parameter;
 

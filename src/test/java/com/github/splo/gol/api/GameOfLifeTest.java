@@ -1,5 +1,10 @@
-package com.github.splo.gol;
+package com.github.splo.gol.api;
 
+import com.github.splo.gol.api.CellState;
+import com.github.splo.gol.api.Coordinates;
+import com.github.splo.gol.api.GameOfLife;
+import com.github.splo.gol.api.Grid;
+import com.github.splo.gol.api.Strategy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

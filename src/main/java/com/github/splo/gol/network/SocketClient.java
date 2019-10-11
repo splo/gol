@@ -1,4 +1,7 @@
-package com.github.splo.gol;
+package com.github.splo.gol.network;
+
+import com.github.splo.gol.api.Grid;
+import com.github.splo.gol.io.GridCodec;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

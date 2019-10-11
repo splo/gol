@@ -1,4 +1,7 @@
-package com.github.splo.gol;
+package com.github.splo.gol.strategy;
+
+import com.github.splo.gol.api.CellState;
+import com.github.splo.gol.api.Strategy;
 
 /**
  * A strategy where a cell is born or survives if there are between 1 and 5 living cells around.

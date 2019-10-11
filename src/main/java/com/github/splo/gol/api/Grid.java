@@ -1,4 +1,4 @@
-package com.github.splo.gol;
+package com.github.splo.gol.api;
 
 import java.util.Arrays;
 import java.util.HashMap;
