@@ -32,4 +32,14 @@ class CoordinatesTest {
         assertThatThrownBy(() -> new Coordinates(-1, 3)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new Coordinates(1, -2)).isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void combinationsStream() {
+        assertThat(Coordinates.combinationsStream(2, 3)).containsExactly(new Coordinates(0, 0),
+                new Coordinates(1, 0),
+                new Coordinates(0, 1),
+                new Coordinates(1, 1),
+                new Coordinates(0, 2),
+                new Coordinates(1, 2));
+    }
 }
