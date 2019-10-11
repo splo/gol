@@ -42,8 +42,8 @@ public class GridCodec {
             final int width = inData.readInt();
             final int height = inData.readInt();
             final Grid.Builder gridBuilder = Grid.newBuilder().setWidth(width).setHeight(height);
-            for (int y = 0; y < width; y++) {
-                for (int x = 0; x < height; x++) {
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
                     final boolean isAlive = inData.readBoolean();
                     gridBuilder.setCellState(new Coordinates(x, y), isAlive ? CellState.ALIVE : CellState.DEAD);
                 }
