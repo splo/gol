@@ -14,7 +14,7 @@ public class SocketClient {
     public void run(final String host, final int port) {
         try (final Socket socket = new Socket(host, port);
                 final BufferedInputStream input = new BufferedInputStream(socket.getInputStream())) {
-            System.out.println("Connected to " + socket.getInetAddress());
+            System.out.println("Connected to " + socket.getRemoteSocketAddress());
             long lastReadTimeMs = System.currentTimeMillis();
             while (System.currentTimeMillis() - lastReadTimeMs < TIMEOUT_MS) {
                 if (input.available() > 0) {
