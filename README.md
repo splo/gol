@@ -65,7 +65,7 @@ Usage: gol [options]
 
 ### Requirements
 
-- Java JDK 8.
+- Java JDK 13.
 - Maven 3.
 
 ### Building
