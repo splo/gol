@@ -1,10 +1,5 @@
 package com.github.splo.gol.api;
 
-import com.github.splo.gol.api.CellState;
-import com.github.splo.gol.api.Coordinates;
-import com.github.splo.gol.api.GameOfLife;
-import com.github.splo.gol.api.Grid;
-import com.github.splo.gol.api.Strategy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,9 +12,7 @@ import java.util.function.Consumer;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -33,7 +26,7 @@ class GameOfLifeTest {
     @Test
     @DisplayName("computeNextGrid calls strategy and notifies listener")
     void computeNextGrid() {
-        final Grid initialGrid = Grid.newBuilder()
+        final var initialGrid = Grid.newBuilder()
                 .setCellState(new Coordinates(0, 0), CellState.ALIVE)
                 .setCellState(new Coordinates(1, 0), CellState.DEAD)
                 .setCellState(new Coordinates(2, 0), CellState.ALIVE)
@@ -46,11 +39,11 @@ class GameOfLifeTest {
                 .build();
         when(strategy.getNextCellState(eq(CellState.DEAD), anyLong())).thenReturn(CellState.ALIVE);
         when(strategy.getNextCellState(eq(CellState.ALIVE), anyLong())).thenReturn(CellState.DEAD);
-        final GameOfLife gameOfLife = new GameOfLife(strategy, gridConsumer, initialGrid);
+        final var gameOfLife = new GameOfLife(strategy, gridConsumer, initialGrid);
 
         gameOfLife.computeNextGrid();
 
-        final Grid expectedGrid = Grid.newBuilder()
+        final var expectedGrid = Grid.newBuilder()
                 .setCellState(new Coordinates(0, 0), CellState.DEAD)
                 .setCellState(new Coordinates(1, 0), CellState.ALIVE)
                 .setCellState(new Coordinates(2, 0), CellState.DEAD)

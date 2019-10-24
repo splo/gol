@@ -1,8 +1,5 @@
 package com.github.splo.gol.api;
 
-import com.github.splo.gol.api.CellState;
-import com.github.splo.gol.api.Coordinates;
-import com.github.splo.gol.api.Grid;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -12,35 +9,35 @@ class GridTest {
 
     @Test
     void getWidth() {
-        final Grid grid = Grid.newBuilder().setWidth(9).build();
+        final var grid = Grid.newBuilder().setWidth(9).build();
 
         assertThat(grid.getWidth()).isEqualTo(9);
     }
 
     @Test
     void getHeight() {
-        final Grid grid = Grid.newBuilder().setHeight(7).build();
+        final var grid = Grid.newBuilder().setHeight(7).build();
 
         assertThat(grid.getHeight()).isEqualTo(7);
     }
 
     @Test
     void defaultWidth() {
-        final Grid grid = Grid.newBuilder().build();
+        final var grid = Grid.newBuilder().build();
 
         assertThat(grid.getWidth()).isEqualTo(3);
     }
 
     @Test
     void defaultHeight() {
-        final Grid grid = Grid.newBuilder().build();
+        final var grid = Grid.newBuilder().build();
 
         assertThat(grid.getHeight()).isEqualTo(3);
     }
 
     @Test
     void getCellState() {
-        final Grid grid = Grid.newBuilder()
+        final var grid = Grid.newBuilder()
                 .setWidth(3)
                 .setHeight(3)
                 .setCellState(new Coordinates(0, 0), CellState.ALIVE)
@@ -67,7 +64,7 @@ class GridTest {
 
     @Test
     void getCellStateOutOfBounds() {
-        final Grid grid = Grid.newBuilder()
+        final var grid = Grid.newBuilder()
                 .setWidth(3)
                 .setHeight(3)
                 .setCellState(new Coordinates(0, 0), CellState.ALIVE)
@@ -89,7 +86,7 @@ class GridTest {
 
     @Test
     void getCellStateIsDeadByDefault() {
-        final Grid grid = Grid.newBuilder().build();
+        final var grid = Grid.newBuilder().build();
 
         assertThat(grid.getCellState(new Coordinates(0, 0))).isEqualTo(CellState.DEAD);
         assertThat(grid.getCellState(new Coordinates(1, 0))).isEqualTo(CellState.DEAD);

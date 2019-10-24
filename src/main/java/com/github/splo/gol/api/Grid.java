@@ -109,7 +109,7 @@ public class Grid {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
         IntStream.range(-1, height + 1)
                 .boxed()
                 .flatMap(y -> IntStream.range(-1, width + 1).mapToObj(x -> new int[] {x, y}))

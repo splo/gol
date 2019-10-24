@@ -2,12 +2,8 @@ package com.github.splo.gol;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import com.github.splo.gol.api.CellState;
-import com.github.splo.gol.api.Coordinates;
-import com.github.splo.gol.api.GameOfLife;
-import com.github.splo.gol.api.Grid;
-import com.github.splo.gol.api.Strategy;
 import com.github.splo.concurrent.ConstantFrequencyUpdater;
+import com.github.splo.gol.api.*;
 import com.github.splo.gol.io.GridCodec;
 import com.github.splo.gol.jcommander.Configuration;
 import com.github.splo.gol.network.SocketClient;
@@ -32,8 +28,8 @@ public class GameOfLifeRunner {
     public static void main(String[] args) {
         try {
             configureStdout();
-            final Configuration configuration = new Configuration();
-            final JCommander jCommander = JCommander.newBuilder().programName("gol").addObject(configuration).build();
+            final var configuration = new Configuration();
+            final var jCommander = JCommander.newBuilder().programName("gol").addObject(configuration).build();
             jCommander.parse(args);
 
             if (configuration.isHelp()) {
@@ -46,18 +42,18 @@ public class GameOfLifeRunner {
 
             } else if (configuration.isClient()) {
                 // Client mode.
-                final SocketClient socketClient = new SocketClient();
+                final var socketClient = new SocketClient();
                 socketClient.run(configuration.getHost(), configuration.getPort());
 
             } else {
-                final Strategy strategy =
+                final var strategy =
                         toStrategy(configuration.getStrategy()).orElseThrow(() -> new IllegalArgumentException(String.format(
                                 "Wrong strategy name: \"%s\"; expected one of \"%s\", \"%s\"",
                                 configuration.getStrategy(),
                                 "B3S23",
                                 "B12345S12345")));
 
-                final Path gridFilePath = Paths.get(configuration.getGridFilename());
+                final var gridFilePath = Paths.get(configuration.getGridFilename());
                 final Grid initialGrid;
                 if (configuration.isNewGrid() || !Files.exists(gridFilePath)) {
                     initialGrid = buildRandomGrid(configuration.getWidth(),
@@ -70,7 +66,7 @@ public class GameOfLifeRunner {
                 Consumer<Grid> listener;
                 if (configuration.isServer()) {
                     // Server mode.
-                    final SocketServer socketServer = new SocketServer();
+                    final var socketServer = new SocketServer();
                     new Thread(() -> socketServer.run(configuration.getPort())).start();
                     listener = grid -> {
                         socketServer.sendGrid(grid);
@@ -85,11 +81,11 @@ public class GameOfLifeRunner {
                     System.out.println(initialGrid);
                 }
 
-                final GameOfLife gameOfLife = new GameOfLife(strategy, listener, initialGrid);
+                final var gameOfLife = new GameOfLife(strategy, listener, initialGrid);
 
                 final float frequency = Math.min(configuration.getFrequency(), 1000f);
 
-                final ConstantFrequencyUpdater updater =
+                final var updater =
                         new ConstantFrequencyUpdater(gameOfLife::computeNextGrid, frequency);
                 updater.start();
                 Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -99,7 +95,7 @@ public class GameOfLifeRunner {
                 updater.awaitStopped();
             }
         } catch (final ParameterException e) {
-            final StringBuilder out = new StringBuilder();
+            final var out = new StringBuilder();
             e.getJCommander().getUsageFormatter().usage(out);
             System.err.println(e.getMessage());
             System.err.println(out.toString());
@@ -146,8 +142,8 @@ public class GameOfLifeRunner {
     }
 
     private static Grid buildRandomGrid(final int width, final int height, final int alivePercent) {
-        final SecureRandom randomGenerator = new SecureRandom();
-        final Grid.Builder builder = Grid.newBuilder();
+        final var randomGenerator = new SecureRandom();
+        final var builder = Grid.newBuilder();
         builder.setWidth(width).setHeight(height);
         IntStream.range(0, height)
                 .boxed()

@@ -28,17 +28,17 @@ public class GameOfLife {
     }
 
     private CellState getNextCellState(final Grid grid, final Coordinates coordinates) {
-        final int x = coordinates.getX();
-        final int y = coordinates.getY();
-        final CellState topLeft = getCellState(grid, x - 1, y - 1);
-        final CellState top = getCellState(grid, x, y - 1);
-        final CellState topRight = getCellState(grid, x + 1, y - 1);
-        final CellState left = getCellState(grid, x - 1, y);
-        final CellState center = getCellState(grid, x, y);
-        final CellState right = getCellState(grid, x + 1, y);
-        final CellState bottomLeft = getCellState(grid, x - 1, y + 1);
-        final CellState bottom = getCellState(grid, x, y + 1);
-        final CellState bottomRight = getCellState(grid, x + 1, y + 1);
+        final var x = coordinates.getX();
+        final var y = coordinates.getY();
+        final var topLeft = getCellState(grid, x - 1, y - 1);
+        final var top = getCellState(grid, x, y - 1);
+        final var topRight = getCellState(grid, x + 1, y - 1);
+        final var left = getCellState(grid, x - 1, y);
+        final var center = getCellState(grid, x, y);
+        final var right = getCellState(grid, x + 1, y);
+        final var bottomLeft = getCellState(grid, x - 1, y + 1);
+        final var bottom = getCellState(grid, x, y + 1);
+        final var bottomRight = getCellState(grid, x + 1, y + 1);
         // Center cell is intentionally left out of the considered cells for the count.
         final long livingCells = Stream.of(topLeft, top, topRight, left, right, bottomLeft, bottom, bottomRight)
                 .filter(cellState -> cellState == CellState.ALIVE)
