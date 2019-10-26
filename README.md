@@ -66,12 +66,11 @@ Usage: gol [options]
 ### Requirements
 
 - Java JDK 13.
-- Maven 3.
 
 ### Building
 
 ```bash
-mvn package
+./mvnw package
 ```
 
 ### Running
